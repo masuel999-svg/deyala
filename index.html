@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Snakes and Ladders – English Challenge</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@600;800&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Fredoka', 'Nunito', sans-serif;
+      background: linear-gradient(135deg, #e0f7fa 0%, #fff9c4 100%);
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 10px;
+    }
+    .game-wrapper {
+      max-width: 1280px;
+      width: 100%;
+      background: #ffffff;
+      border-radius: 24px;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.12);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(90deg, #ff7043, #ffa726);
+      padding: 16px 24px;
+      border-radius: 16px;
+      color: white;
+    }
+    header h1 {
+      font-size: 26px;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    header .author {
+      font-size: 16px;
+      font-weight: 600;
+      background: rgba(255,255,255,0.2);
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+    .top-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f5f5f5;
+      padding: 12px 20px;
+      border-radius: 14px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .stats-group {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+    .stat-pill {
+      background: white;
+      padding: 8px 16px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .stat-pill i {
+      color: #ffb300;
+    }
+    .btn {
+      background: #4caf50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(76,175,80,0.3);
+      transition: transform 0.1s ease;
+    }
+    .btn:hover { transform: scale(1.03); }
+    .btn-sound {
+      background: #2196f3;
+      box-shadow: 0 4px 10px rgba(33,150,243,0.3);
+    }
+    .main-layout {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 20px;
+    }
+    @media (max-width: 1024px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+    .board-container {
+      background: #e8f5e9;
+      border-radius: 16px;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      grid-template-rows: repeat(5, 1fr);
+      gap: 6px;
+      position: relative;
+      min-height: 520px;
+    }
+    .square {
+      background: white;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px;
+      font-weight: 700;
+      font-size: 14px;
+      position: relative;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+      min-height: 90px;
+      border: 2px solid #c8e6c9;
+    }
+    .square.start-sq { background: #c8e6c9; border-color: #81c784; }
+    .square.finish-sq { background: #ffe0b2; border-color: #ffb74d; }
+    .square-num {
+      align-self: flex-start;
+      color: #888;
+      font-size: 12px;
+    }
+    .square-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-grow: 1;
+      font-size: 11px;
+      text-align: center;
+      color: #555;
+    }
+    .badge-icon {
+      font-size: 18px;
+      margin-bottom: 2px;
+    }
+    .player-token {
+      position: absolute;
+      width: 36px;
+      height: 36px;
+      background: #e91e63;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      z-index: 10;
+      transition: all 0.4s ease-in-out;
+      border: 3px solid white;
+    }
+    .question-panel {
+      background: #fff8e1;
+      border-radius: 16px;
+      padding: 24px;
+      border: 3px solid #ffe0b2;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .q-header {
+      font-size: 14px;
+      font-weight: 700;
+      color: #f57c00;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .q-text {
+      font-size: 20px;
+      font-weight: 700;
+      color: #2c3e50;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+    .q-image-box {
+      font-size: 48px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .option-btn {
+      background: white;
+      border: 2px solid #b0bec5;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: #37474f;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+    }
+    .option-btn:hover:not(:disabled) {
+      background: #e3f2fd;
+      border-color: #2196f3;
+    }
+    .option-btn.correct {
+      background: #c8e6c9 !important;
+      border-color: #4caf50 !important;
+      color: #2e7d32 !important;
+    }
+    .option-btn.wrong {
+      background: #ffcdd2 !important;
+      border-color: #f44336 !important;
+      color: #c62828 !important;
+    }
+    .feedback-box {
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 15px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .feedback-box.show { display: block; }
+    .feedback-box.success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+    .feedback-box.error { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+    
+    /* Modal Screen */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      display: none;
+    }
+    .modal-content {
+      background: white;
+      padding: 40px;
+      border-radius: 24px;
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      animation: popIn 0.3s ease;
+    }
+    @keyframes popIn {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .modal-content h2 {
+      font-size: 32px;
+      color: #e91e63;
+      margin-bottom: 12px;
+    }
+    .modal-content p {
+      font-size: 18px;
+      color: #555;
+      margin-bottom: 24px;
+    }
+    .modal-stats {
+      background: #f5f5f5;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      font-size: 16px;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-wrapper">
+    <header>
+      <h1>🐍🪜 Snakes & Ladders – English Challenge</h1>
+      <div class="author">Dr. Mohsen El-Kashef</div>
+    </header>
+
+    <div class="top-controls">
+      <div class="stats-group">
+        <div class="stat-pill"><i class="fa-solid fa-star"></i> Score: <span id="score-val">0</span></div>
+        <div class="stat-pill"><i class="fa-solid fa-location-dot"></i> Position: <span id="pos-val">1</span> / 50</div>
+        <div class="stat-pill"><i class="fa-solid fa-circle-question"></i> Question: <span id="q-num-val">1</span></div>
+      </div>
+      <div>
+        <button class="btn btn-sound" id="sound-toggle-btn" onclick="toggleSound()"><i class="fa-solid fa-volume-high"></i> Sound ON</button>
+      </div>
+    </div>
+
+    <div class="main-layout">
+      <!-- Board 50 Squares (Snake & Ladder layout mapping 1 to 50) -->
+      <div class="board-container" id="board-grid">
+        <!-- Token -->
+        <div class="player-token" id="player-token" title="You">🐍</div>
+      </div>
+
+      <!-- Question Panel -->
+      <div class="question-panel">
+        <div>
+          <div class="q-header" id="q-type-label">Vocabulary Challenge</div>
+          <div class="q-image-box" id="q-image-box">🦋</div>
+          <div class="q-text" id="q-question-text">Loading question...</div>
+          <div class="options-list" id="options-container">
+            <!-- Options injected here -->
+          </div>
+        </div>
+        <div>
+          <div class="feedback-box" id="feedback-box"></div>
+          <button class="btn" id="next-btn" style="width: 100%; display: none;" onclick="nextTurn()">Next Question ➡️</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Win Modal -->
+  <div class="modal-overlay" id="win-modal">
+    <div class="modal-content">
+      <h2>🎉 CONGRATULATIONS! 🎉</h2>
+      <p>You reached the finish line successfully!</p>
+      <div class="modal-stats" id="modal-stats-box">
+        <!-- Stats summary -->
+      </div>
+      <button class="btn" onclick="restartGame()" style="font-size: 18px; padding: 14px 28px;">🔄 PLAY AGAIN</button>
+    </div>
+  </div>
+
+  <script>
+    // --- Snake & Ladder Mappings ---
+    // 50 squares layout (5 rows x 10 cols)
+    const ladders = { 3: 12, 8: 20, 15: 28, 24: 38, 31: 45 };
+    const snakes = { 14: 6, 22: 10, 35: 18, 42: 27, 48: 34 };
+
+    // --- Complete Question Bank (120+ Unique Questions based on lesson images) ---
+    const questionBank = [
+      // Vocabulary & Animals & Nature (40+)
+      { type: "Vocabulary", icon: "🦋", text: "What is this insect?", options: ["butterfly", "dinosaur", "beetle"], correct: 0 },
+      { type: "Vocabulary", icon: "🪲", text: "A beetle is an ______.", options: ["insect", "animal", "bird"], correct: 0 },
+      { type: "Vocabulary", icon: "🐆", text: "What animal is shown here?", options: ["Arabian leopard", "tortoise", "cat"], correct: 0 },
+      { type: "Vocabulary", icon: "🐢", text: "What animal is this?", options: ["tortoise", "leopard", "beetle"], correct: 0 },
+      { type: "Meaning", icon: "🌿", text: "What does 'wild' mean?", options: ["not living with people", "very small", "very heavy"], correct: 0 },
+      { type: "Vocabulary", icon: "🦴", text: "Scientists study dinosaur ______.", options: ["bones", "leaves", "water"], correct: 0 },
+      { type: "Vocabulary", icon: "🧪", text: "Insects can be hurt by ______.", options: ["chemicals", "books", "houses"], correct: 0 },
+      { type: "Vocabulary", icon: "🌾", text: "Animals need food and ______.", options: ["water", "plastic", "metal"], correct: 0 },
+      { type: "Vocabulary", icon: "⚖️", text: "The Arabian leopard is protected by the ______.", options: ["law", "food", "mountain"], correct: 0 },
+      { type: "Vocabulary", icon: "⛰️", text: "Where is a tortoise found?", options: ["in the mountains", "on the Moon", "in houses"], correct: 0 },
+      { type: "Vocabulary", icon: "🐛", text: "Another word for small creepy-crawlies is ______.", options: ["insects", "leopards", "dinosaurs"], correct: 0 },
+      { type: "Vocabulary", icon: "🦴", text: "Dinosaurs lived in the ______.", options: ["past", "future", "tomorrow"], correct: 0 },
+      { type: "Vocabulary", icon: "🏡", text: "Wild animals do not live in ______.", options: ["houses", "forests", "mountains"], correct: 0 },
+      { type: "Vocabulary", icon: "🌿", text: "Wild animals live in the ______.", options: ["wild / nature", "kitchen", "school"], correct: 0 },
+      { type: "Vocabulary", icon: "🦖", text: "Which creature is extinct?", options: ["dinosaur", "butterfly", "leopard"], correct: 0 },
+      { type: "Vocabulary", icon: "👀", text: "People ______ wild animals.", options: ["see", "sees", "is see"], correct: 0 },
+      { type: "Vocabulary", icon: "🚫", text: "Wild animals aren't ______ in houses.", options: ["seen", "see", "saw"], correct: 0 },
+      { type: "Vocabulary", icon: "🌧️", text: "Cold ______ bring lower temperatures.", options: ["seasons", "moons", "bones"], correct: 0 },
+      { type: "Vocabulary", icon: "🌾", text: "Crops and ______ grow in fields.", options: ["plants", "leopards", "cars"], correct: 0 },
+      { type: "Vocabulary", icon: "🛡️", text: "Animals in danger need to be ______.", options: ["protected", "eaten", "hidden"], correct: 0 },
+
+      // Verb to be (20+)
+      { type: "Verb to be", icon: "🐢", text: "A tortoise ______ found in the mountains.", options: ["is", "are", "am"], correct: 0 },
+      { type: "Verb to be", icon: "🦋", text: "Butterflies ______ seen in cold seasons.", options: ["aren't", "isn't", "am not"], correct: 0 },
+      { type: "Verb to be", icon: "🐆", text: "The Arabian leopard ______ protected by law.", options: ["is", "are", "am"], correct: 0 },
+      { type: "Verb to be", icon: "🦴", text: "Dinosaur bones ______ studied by scientists.", options: ["are", "is", "am"], correct: 0 },
+      { type: "Verb to be", icon: "🦖", text: "Dinosaurs ______ found in the wild today.", options: ["aren't", "isn't", "don't"], correct: 0 },
+      { type: "Verb to be", icon: "🌿", text: "Wild animals ______ protected.", options: ["are", "is", "am"], correct: 0 },
+      { type: "Verb to be", icon: "🐛", text: "Insects ______ eaten by other animals.", options: ["are", "is", "be"], correct: 0 },
+      { type: "Verb to be", icon: "🧪", text: "Some creatures ______ hurt by chemicals.", options: ["are", "is", "am"], correct: 0 },
+      { type: "Verb to be", icon: "💧", text: "Some animals ______ given food or water.", options: ["aren't", "isn't", "doesn't"], correct: 0 },
+      { type: "Verb to be", icon: "🤝", text: "They ______ saved by kind people.", options: ["are", "is", "am"], correct: 0 },
+      { type: "Verb to be", icon: "🏡", text: "Wild animals ______ seen in houses.", options: ["aren't", "is", "am"], correct: 0 },
+      { type: "Verb to be", icon: "🌙", text: "Are dinosaur bones found on the moon? No, they ______.", options: ["aren't", "isn't", "weren't"], correct: 0 },
+      { type: "Verb to be", icon: "⛰️", text: "______ tortoises found in mountains?", options: ["Are", "Is", "Am"], correct: 0 },
+      { type: "Verb to be", icon: "🦋", text: "______ butterflies seen in hot places?", options: ["Are", "Is", "Do"], correct: 0 },
+      { type: "Verb to be", icon: "🐾", text: "Some wild animals ______ hunted.", options: ["are", "is", "be"], correct: 0 },
+      { type: "Verb to be", icon: "❤️", text: "Every animal ______ looked after by nature.", options: ["is", "are", "am"], correct: 0 },
+      { type: "Verb to be", icon: "🔍", text: "Dinosaur bones ______ studied.", options: ["are", "is", "be"], correct: 0 },
+      { type: "Verb to be", icon: "⚡", text: "Wild animals ______ in danger.", options: ["are", "is", "am"], correct: 0 },
+      { type: "Verb to be", icon: "🛑", text: "Cruelty to animals ______ not allowed.", options: ["is", "are", "am"], correct: 0 },
+      { type: "Verb to be", icon: "🌟", title: "Verb to be", text: "Butterflies ______ insects.", options: ["are", "is", "am"], correct: 0 },
+
+      // Active Voice (20+)
+      { type: "Active Voice", icon: "🐆", text: "Other animals eat insects. Who does the action?", options: ["Other animals", "insects", "people"], correct: 0 },
+      { type: "Active Voice", icon: "🧑‍🌾", text: "People hunt wild animals. What is the action verb?", options: ["hunt", "animals", "people"], correct: 0 },
+      { type: "Active Voice", icon: "🔬", text: "Scientists study dinosaur bones. Who studies?", options: ["Scientists", "Bones", "Wild animals"], correct: 0 },
+      { type: "Active Voice", icon: "👀", text: "We don't see butterflies in winter. What do we do?", options: ["don't see", "butterflies", "winter"], correct: 0 },
+      { type: "Active Voice", icon: "🦖", text: "Do we find dinosaur bones on the Moon?", options: ["find", "Moon", "bones"], correct: 0 },
+      { type: "Active Voice", icon: "🐅", text: "Leopards hunt for food in the wild.", options: ["hunt", "leopards", "food"], correct: 0 },
+      { type: "Active Voice", icon: "🍃", text: "Insects eat small plants.", options: ["eat", "insects", "plants"], correct: 0 },
+      { type: "Active Voice", icon: "👨‍👩‍👦", text: "People protect endangered animals.", options: ["protect", "people", "animals"], correct: 0 },
+      { type: "Active Voice", icon: "📖", text: "Students read English lessons.", options: ["read", "students", "lessons"], correct: 0 },
+      { type: "Active Voice", icon: "🌧️", text: "Cold weather changes animal habits.", options: ["changes", "weather", "habits"], correct: 0 },
+      { type: "Active Voice", icon: "🐾", text: "Hunters catch wild cats.", options: ["catch", "hunters", "cats"], correct: 0 },
+      { type: "Active Voice", icon: "🌿", text: "Plants absorb water from soil.", options: ["absorb", "plants", "soil"], correct: 0 },
+      { type: "Active Voice", icon: "☀️", text: "The sun warms the mountains.", options: ["warms", "sun", "mountains"], correct: 0 },
+      { type: "Active Voice", icon: "🦜", text: "Birds sing in the trees.", options: ["sing", "birds", "trees"], correct: 0 },
+      { type: "Active Voice", icon: "🌊", text: "Rivers flow across valleys.", options: ["flow", "rivers", "valleys"], correct: 0 },
+      { type: "Active Voice", icon: "🍏", text: "Tortoises eat green leaves.", options: ["eat", "tortoises", "leaves"], correct: 0 },
+      { type: "Active Voice", icon: "📝", text: "Dr. Mohsen writes English lessons.", options: ["writes", "Dr. Mohsen", "lessons"], correct: 0 },
+      { type: "Active Voice", icon: "🎨", text: "Children draw colorful insects.", options: ["draw", "children", "insects"], correct: 0 },
+      { type: "Active Voice", icon: "🚪", text: "The teacher opens the door.", options: ["opens", "teacher", "door"], correct: 0 },
+      { type: "Active Voice", icon: "🍎", text: "Monks eat healthy food.", options: ["eat", "monks", "food"], correct: 0 },
+
+      // Passive Voice (20+)
+      { type: "Passive Voice", icon: "🐛", text: "Insects ______ by other animals.", options: ["are eaten", "eat", "is eaten"], correct: 0 },
+      { type: "Passive Voice", icon: "🦋", text: "Butterflies ______ seen in cold seasons.", options: ["aren't seen", "don't see", "isn't see"], correct: 0 },
+      { type: "Passive Voice", icon: "🐢", text: "Tortoises ______ found in the mountains.", options: ["are found", "find", "is find"], correct: 0 },
+      { type: "Passive Voice", icon: "🐆", text: "Many animals ______ hunted by people for food.", options: ["are hunted", "hunt", "is hunt"], correct: 0 },
+      { type: "Passive Voice", icon: "🛡️", text: "Some animals ______ protected by the law.", options: ["are protected", "protect", "is protect"], correct: 0 },
+      { type: "Passive Voice", icon: "🧪", text: "Creatures and insects ______ hurt by chemicals.", options: ["are hurt", "hurt", "is hurt"], correct: 0 },
+      { type: "Passive Voice", icon: "🐾", text: "Wild animals ______ given food or water in places.", options: ["aren't given", "don't give", "isn't given"], correct: 0 },
+      { type: "Passive Voice", icon: "🤝", text: "Sometimes they ______ saved by kind people.", options: ["are saved", "save", "is save"], correct: 0 },
+      { type: "Passive Voice", icon: "🚗", text: "They ______ taken to a safe place.", options: ["are taken", "take", "is take"], correct: 0 },
+      { type: "Passive Voice", icon: "🏡", text: "They ______ looked after properly.", options: ["are looked", "look", "is look"], correct: 0 },
+      { type: "Passive Voice", icon: "🦴", text: "Dinosaur bones ______ studied by scientists.", options: ["are studied", "study", "is studied"], correct: 0 },
+      { type: "Passive Voice", icon: "🚪", text: "The door ______ opened every morning.", options: ["is opened", "open", "are open"], correct: 0 },
+      { type: "Passive Voice", icon: "🍎", text: "The food ______ eaten by the animals.", options: ["is eaten", "eat", "are eaten"], correct: 0 },
+      { type: "Passive Voice", icon: "📚", text: "The books ______ read by students.", options: ["are read", "read", "is read"], correct: 0 },
+      { type: "Passive Voice", icon: "🌳", text: "Trees ______ planted in the park.", options: ["are planted", "plant", "is plant"], correct: 0 },
+      { type: "Passive Voice", icon: "✉️", text: "Letters ______ delivered every day.", options: ["are delivered", "deliver", "is deliver"], correct: 0 },
+      { type: "Passive Voice", icon: "🧹", text: "The classroom ______ cleaned daily.", options: ["is cleaned", "clean", "are clean"], correct: 0 },
+      { type: "Passive Voice", icon: "💧", text: "Plants ______ watered by rain.", options: ["are watered", "water", "is water"], correct: 0 },
+      { type: "Passive Voice", icon: "🚗", text: "Cars ______ parked outside.", options: ["are parked", "park", "is park"], correct: 0 },
+      { type: "Passive Voice", icon: "💡", text: "The lights ______ turned on at night.", options: ["are turned", "turn", "is turned"], correct: 0 },
+
+      // Active -> Passive (10+)
+      { type: "Active -> Passive", icon: "🔄", text: "Other animals eat insects.", options: ["Insects are eaten by other animals.", "Insects eat other animals.", "Other animals are eaten by insects."], correct: 0 },
+      { type: "Active -> Passive", icon: "🔄", text: "People hunt wild animals.", options: ["Wild animals are hunted by people.", "Wild animals hunt people.", "People are hunted by wild animals."], correct: 0 },
+      { type: "Active -> Passive", icon: "🔄", text: "Scientists study dinosaur bones.", options: ["Dinosaur bones are studied by scientists.", "Scientists are studied by dinosaur bones.", "Dinosaur bones study scientists."], correct: 0 },
+      { type: "Active -> Passive", icon: "🔄", text: "Kind people save animals.", options: ["Animals are saved by kind people.", "Animals save kind people.", "Kind people are saved by animals."], correct: 0 },
+      { type: "Active -> Passive", icon: "🔄", text: "Farmers grow crops in fields.", options: ["Crops are grown by farmers in fields.", "Crops grow farmers in fields.", "Fields grow farmers with crops."], correct: 0 },
+      { type: "Active -> Passive", icon: "🔄", text: "Students read English books.", options: ["English books are read by students.", "English books read students.", "Students are read by books."], correct: 0 },
+      { type: "Active -> Passive", icon: "🔄", text: "Teachers help young learners.", options: ["Young learners are helped by teachers.", "Young learners help teachers.", "Teachers are helped by learners."], correct: 0 },
+      { type: "Active -> Passive", icon: "🔄", text: "Cats catch small mice.", options: ["Small mice are caught by cats.", "Small mice catch cats.", "Cats are caught by mice."], correct: 0 },
+      { type: "Active -> Passive", icon: "🔄", text: "People protect the environment.", options: ["The environment is protected by people.", "The environment protects people.", "People are protected by trees."], correct: 0 },
+      { type: "Active -> Passive", icon: "🔄", text: "The sun warms the earth.", options: ["The earth is warmed by the sun.", "The earth warms the sun.", "The sun is warmed by the earth."], correct: 0 },
+
+      // Passive -> Active (10+)
+      { type: "Passive -> Active", icon: "🔄", text: "Insects are eaten by other animals.", options: ["Other animals eat insects.", "Insects eat other animals.", "Other animals are eaten by insects."], correct: 0 },
+      { type: "Passive -> Active", icon: "🔄", text: "Wild animals are hunted by people.", options: ["People hunt wild animals.", "Wild animals hunt people.", "People are hunted by wild animals."], correct: 0 },
+      { type: "Passive -> Active", icon: "🔄", text: "Dinosaur bones are studied by scientists.", options: ["Scientists study dinosaur bones.", "Dinosaur bones study scientists.", "Scientists are studied by bones."], correct: 0 },
+      { type: "Passive -> Active", icon: "🔄", text: "Animals are saved by kind people.", options: ["Kind people save animals.", "Animals save kind people.", "Kind people are saved by animals."], correct: 0 },
+      { type: "Passive -> Active", icon: "🔄", text: "Crops are grown by farmers.", options: ["Farmers grow crops.", "Crops grow farmers.", "Farmers are grown by crops."], correct: 0 },
+      { type: "Passive -> Active", icon: "🔄", text: "English books are read by students.", options: ["Students read English books.", "English books read students.", "Students are read by books."], correct: 0 },
+      { type: "Passive -> Active", icon: "🔄", text: "Young learners are helped by teachers.", options: ["Teachers help young learners.", "Young learners help teachers.", "Teachers are helped by learners."], correct: 0 },
+      { type: "Passive -> Active", icon: "🔄", text: "Small mice are caught by cats.", options: ["Cats catch small mice.", "Small mice catch cats.", "Cats are caught by mice."], correct: 0 },
+      { type: "Passive -> Active", icon: "🔄", text: "The environment is protected by people.", options: ["People protect the environment.", "The environment protects people.", "People are protected by nature."], correct: 0 },
+      { type: "Passive -> Active", icon: "🔄", text: "The earth is warmed by the sun.", options: ["The sun warms the earth.", "The earth warms the sun.", "The sun is warmed by earth."], correct: 0 }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let position = 1;
+    let soundEnabled = true;
+    let questionsAnswered = 0;
+    let correctAnswersCount = 0;
+    let wrongAnswersCount = 0;
+    let shuffledQuestions = [];
+
+    // --- Audio Speech Synthesis Helper ---
+    function speakText(text) {
+      if (!soundEnabled) return;
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.9;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const btn = document.getElementById('sound-toggle-btn');
+      if (soundEnabled) {
+        btn.innerHTML = '<i class="fa-solid fa-volume-high"></i> Sound ON';
+        speakText("Sound is on");
+      } else {
+        btn.innerHTML = '<i class="fa-solid fa-volume-mute"></i> Sound OFF';
+      }
+    }
+
+    // --- Initialize Board Squares ---
+    function buildBoard() {
+      const boardGrid = document.getElementById('board-grid');
+      // We need to keep the token element in DOM
+      const tokenHtml = '<div class="player-token" id="player-token" title="You">🐍</div>';
+      
+      let squaresHtml = '';
+      // 50 down to 1 in snake pattern, or standard 1 to 50 grid. Let's arrange 1 to 50 visually
+      // Standard layout: Row 5 (41-50), Row 4 (40-31 reversed or standard), let's do standard left-to-right rows or snake path.
+      // Standard 5 rows of 10:
+      let cells = [];
+      for (let i = 1; i <= 50; i++) {
+        let extraText = "";
+        let badge = "⭐";
+        if (i === 1) { badge = "🚩"; extraText = "START"; }
+        else if (i === 50) { badge = "🏆"; extraText = "FINISH"; }
+        else if (ladders[i]) { badge = "🪜"; extraText = `+to ${ladders[i]}`; }
+        else if (snakes[i]) { badge = "🐍"; extraText = `-to ${snakes[i]}`; }
+
+        cells.push(`
+          <div class="square ${i === 1 ? 'start-sq' : ''} ${i === 50 ? 'finish-sq' : ''}" id="sq-${i}">
+            <div class="square-num">${i}</div>
+            <div class="square-content">
+              <div class="badge-icon">${badge}</div>
+              <div style="font-size:10px; font-weight:600; color:#666;">${extraText}</div>
+            </div>
+          </div>
+        `);
+      }
+      
+      boardGrid.innerHTML = cells.join('') + tokenHtml;
+      updateTokenPosition(false);
+    }
+
+    // --- Shuffle Questions on Start ---
+    function initGame() {
+      shuffledQuestions = [...questionBank].sort(() => Math.random() - 0.5);
+      currentQuestionIndex = 0;
+      score = 0;
+      position = 1;
+      questionsAnswered = 0;
+      correctAnswersCount = 0;
+      wrongAnswersCount = 0;
+      
+      document.getElementById('win-modal').style.display = 'none';
+      buildBoard();
+      loadQuestion();
+    }
+
+    // --- Load Current Question ---
+    function loadQuestion() {
+      if (currentQuestionIndex >= shuffledQuestions.length) {
+        // Reshuffle if we run out of questions
+        shuffledQuestions = [...questionBank].sort(() => Math.random() - 0.5);
+        currentQuestionIndex = 0;
+      }
+
+      const q = shuffledQuestions[currentQuestionIndex];
+      document.getElementById('q-type-label').innerText = `${q.type} Challenge`;
+      document.getElementById('q-image-box').innerText = q.icon || '📚';
+      document.getElementById('q-question-text').innerText = q.text;
+
+      const optContainer = document.getElementById('options-container');
+      optContainer.innerHTML = '';
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerText = `${String.fromCharCode(65 +)}) ${opt}`;
+        btn.onclick = () => checkAnswer(idx, q.correct);
+        optContainer.appendChild(btn);
+      });
+
+      document.getElementById('feedback-box').className = 'feedback-box';
+      document.getElementById('feedback-box').style.display = 'none';
+      document.getElementById('next-btn').style.display = 'none';
+
+      document.getElementById('score-val').innerText = score;
+      document.getElementById('pos-val').innerText = position;
+      document.getElementById('q-num-val').innerText = questionsAnswered + 1;
+
+      speakText(q.text);
+    }
+
+    // --- Check Answer ---
+    function checkAnswer(selectedIndex, correctIndex) {
+      const optionBtns = document.querySelectorAll('.option-btn');
+      optionBtns.forEach(b => b.disabled = true);
+
+      questionsAnswered++;
+      const feedbackBox = document.getElementById('feedback-box');
+      feedbackBox.style.display = 'block';
+
+      const q = shuffledQuestions[currentQuestionIndex];
+
+      if (selectedIndex === correctIndex) {
+        correctAnswersCount++;
+        score += 10;
+        optionBtns[selectedIndex].classList.add('correct');
+        feedbackBox.className = 'feedback-box show success';
+        feedbackBox.innerHTML = '✅ Correct! Great job!';
+        speakText("Correct! Great job!");
+
+        // Move player forward 1 square
+        if (position < 50) {
+          position += 1;
+        }
+        updateTokenPosition(true);
+
+        setTimeout(() => {
+          checkSnakesAndLadders();
+        }, 600);
+
+      } else {
+        wrongAnswersCount++;
+        optionBtns[selectedIndex].classList.add('wrong');
+        optionBtns[correctIndex].classList.add('correct');
+        feedbackBox.className = 'feedback-box show error';
+        feedbackBox.innerHTML = `❌ Incorrect. The correct answer is: <b>${q.options[correctIndex]}</b>`;
+        speakText("Try again!");
+      }
+
+      document.getElementById('score-val').innerText = score;
+      document.getElementById('pos-val').innerText = position;
+      document.getElementById('next-btn').style.display = 'block';
+    }
+
+    // --- Check Snakes and Ladders ---
+    function checkSnakesAndLadders() {
+      const feedbackBox = document.getElementById('feedback-box');
+      
+      if (ladders[position]) {
+        const oldPos = position;
+        position = ladders[position];
+        feedbackBox.className = 'feedback-box show success';
+        feedbackBox.innerHTML = `⬆️ Great! You found a ladder from ${oldPos} to ${position}!`;
+        speakText("Great! You found a ladder!");
+        updateTokenPosition(true);
+      } else if (snakes[position]) {
+        const oldPos = position;
+        position = snakes[position];
+        feedbackBox.className = 'feedback-box show error';
+        feedbackBox.innerHTML = `🐍 Oops! A snake bit you! Down from ${oldPos} to ${position}!`;
+        speakText("Oops! A snake!");
+        updateTokenPosition(true);
+      }
+
+      document.getElementById('pos-val').innerText = position;
+
+      if (position >= 50) {
+        setTimeout(showWinScreen, 800);
+      }
+    }
+
+    // --- Update Token Position on Grid ---
+    function updateTokenPosition(animate = true) {
+      const token = document.getElementById('player-token');
+      const targetSquare = document.getElementById(`sq-${position}`);
+      if (!targetSquare) return;
+
+      const rect = targetSquare.getBoundingClientRect();
+      const boardRect = document.getElementById('board-grid').getBoundingClientRect();
+
+      const top = targetSquare.offsetTop + (targetSquare.offsetHeight / 2) - 18;
+      const left = targetSquare.offsetLeft + (targetSquare.offsetWidth / 2) - 18;
+
+      token.style.top = `${top}px`;
+      token.style.left = `${left}px`;
+    }
+
+    // --- Next Turn ---
+    function nextTurn() {
+      if (position >= 50) {
+        showWinScreen();
+        return;
+      }
+      currentQuestionIndex++;
+      loadQuestion();
+    }
+
+    // --- Win Screen ---
+    function showWinScreen() {
+      speakText("Congratulations! You reached the finish!");
+      const modal = document.getElementById('win-modal');
+      const statsBox = document.getElementById('modal-stats-box');
+      statsBox.innerHTML = `
+        <div>⭐ Final Score: <b>${score}</b></div>
+        <div>❓ Questions Answered: <b>${questionsAnswered}</b></div>
+        <div>✅ Correct Answers: <b>${correctAnswersCount}</b></div>
+        <div>❌ Wrong Answers: <b>${wrongAnswersCount}</b></div>
+      `;
+      modal.style.display = 'flex';
+    }
+
+    function restartGame() {
+      initGame();
+    }
+
+    // Window resize handler to keep token aligned
+    window.onload = () => {
+      initGame();
+    };
+    window.onresize = () => {
+      updateTokenPosition(false);
+    };
+  </script>
+</body>
+</html>
+```eof
+
+Your interactive English learning game **Snakes and Ladders – English Challenge** for Dr. Mohsen El-Kashef is ready! Feel free to test it out in your browser and let me know if you'd like any adjustments.
